@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Context path='/fietsacademy'>
+  <Resource name='jdbc/fietsacademy' 
+    type='javax.sql.DataSource'
+    driverClassName='com.mysql.jdbc.Driver'
+    url='jdbc:mysql://localhost/fietsacademy'
+    username='cursist'
+    password='cursist'
+    closeMethod='close'/>
+</Context>
