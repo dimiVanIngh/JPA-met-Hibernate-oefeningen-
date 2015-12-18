@@ -15,6 +15,7 @@ import be.vdab.services.DocentService;
 public class ZoekenServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String VIEW = "/WEB-INF/JSP/docenten/zoeken.jsp";
+	public static final String REDIRECT_URL = "%s/docenten/zoeken.htm?id=%d";
 	private final transient DocentService docentService = new DocentService();
 
 	@Override
@@ -30,5 +31,21 @@ public class ZoekenServlet extends HttpServlet {
 			}
 		}
 		request.getRequestDispatcher(VIEW).forward(request, response);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		long id = Long.parseLong(request.getParameter("id"));
+		String bijnaam = request.getParameter("bijnaam");
+		if (bijnaam == null || bijnaam.isEmpty()) {
+			request.setAttribute("fouten", Collections.singletonMap("bijnaam", "verplicht"));
+			request.setAttribute("docent", docentService.read(id));
+			request.getRequestDispatcher(VIEW).forward(request, response);
+		} else {
+			docentService.bijnaamToevoegen(id, bijnaam);
+			response.sendRedirect(
+					response.encodeRedirectURL(String.format(REDIRECT_URL, request.getContextPath(), id)));
+		}
 	}
 }

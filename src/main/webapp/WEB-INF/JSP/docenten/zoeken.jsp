@@ -19,9 +19,24 @@
   Docent niet gevonden
   </c:if>
 	<c:if test='${not empty docent}'>
-  ${docent.geslacht == 'MAN' ? '&#x2642;' : '&#x2640;'}
-    ${docent.naam}, wedde: &euro; <fmt:formatNumber
-			value='${docent.wedde}' />
+		<p>
+			${docent.geslacht == 'MAN' ? '&#x2642;' : '&#x2640;'} ${docent.naam},
+			wedde: &euro;
+			<fmt:formatNumber value='${docent.wedde}' />
+		</p>
+		<c:if test='${not empty docent.bijnamen}'>
+			<h2>Bijnamen</h2>
+			<ul>
+				<c:forEach items='${docent.bijnamen}' var='bijnaam'>
+					<li>${bijnaam}</li>
+				</c:forEach>
+			</ul>
+		</c:if>
+		<form method='post' id='toevoegform'>
+			<label>Bijnaam: <span>${fouten.bijnaam}</span> <input
+				name='bijnaam' value='${param.bijnaam}' required></label> <input
+				type='submit' value='Toevoegen' id='toevoegknop'>
+		</form>
 
 		<h2>Acties</h2>
 
@@ -38,5 +53,10 @@
 		<a href='${opslagURL}' class='knop'><input type="button"
 			value='Opslag'></a>
 	</c:if>
+	<script>
+		document.getElementById('toevoegform').onsubmit = function() {
+			document.getElementById('toevoegknop').disabled = true;
+		};
+	</script>
 </body>
 </html>

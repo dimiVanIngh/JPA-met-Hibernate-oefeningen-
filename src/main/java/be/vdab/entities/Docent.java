@@ -3,13 +3,20 @@ package be.vdab.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
 import be.vdab.enums.Geslacht;
@@ -17,18 +24,27 @@ import be.vdab.enums.Geslacht;
 @Entity
 @Table(name = "docenten") // weglaten classname = tablename
 public class Docent implements Serializable {
+
 	private static final long serialVersionUID = 1L;
-	@Id
+
 	// IDENTITY = autonumbering
 	// oracle DB geen autonumbering wel .SEQUENCE
+	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+
 	private String voornaam;
 	private String familienaam;
 	private BigDecimal wedde;
 	private long rijksRegisterNr;
+
 	@Enumerated(EnumType.STRING)
 	private Geslacht geslacht;
+
+	@ElementCollection
+	@CollectionTable(name = "docentenbijnamen", joinColumns = @JoinColumn(name = "docentid") )
+	@Column(name = "Bijnaam")
+	private Set<String> bijnamen;
 
 	// #constructors
 	public Docent(String voornaam, String familienaam, BigDecimal wedde, Geslacht geslacht, long rijksRegisterNr) {
@@ -37,6 +53,7 @@ public class Docent implements Serializable {
 		setWedde(wedde);
 		setGeslacht(geslacht);
 		setRijksRegisterNr(rijksRegisterNr);
+		bijnamen = new HashSet<>();
 	}
 
 	protected Docent() {
@@ -91,6 +108,10 @@ public class Docent implements Serializable {
 	public String getNaam() {
 		return voornaam + ' ' + familienaam;
 	}
+	
+	public Set<String> getBijnamen(){
+		return Collections.unmodifiableSet(bijnamen);
+	}
 
 	// #setters
 	public void setId(long id) {
@@ -128,10 +149,20 @@ public class Docent implements Serializable {
 		}
 		this.rijksRegisterNr = rijksRegisterNr;
 	}
-
+	
+	public void addBijnaam(String bijnaam){
+		bijnamen.add(bijnaam);
+	}
+	
+	// #remove methods
+	public void removeBijnaam(String bijnaam){
+		bijnamen.remove(bijnaam);
+	}
+	
 	// #leftover methods
 	public void opslag(BigDecimal percentage) {
 		BigDecimal factor = BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100)));
 		wedde = wedde.multiply(factor).setScale(2, RoundingMode.HALF_UP);
 	}
+	
 }
