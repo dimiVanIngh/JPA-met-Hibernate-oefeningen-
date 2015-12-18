@@ -26,11 +26,15 @@
 		</p>
 		<c:if test='${not empty docent.bijnamen}'>
 			<h2>Bijnamen</h2>
-			<ul>
-				<c:forEach items='${docent.bijnamen}' var='bijnaam'>
-					<li>${bijnaam}</li>
-				</c:forEach>
-			</ul>
+			<form method='post'>
+				<ul>
+					<c:forEach items='${docent.bijnamen}' var='bijnaam'>
+						<li><label><c:out value="${bijnaam} "></c:out><input type='checkbox'
+								name='bijnaam' value='<c:out value="${bijnaam} "></c:out>'></label></li>
+					</c:forEach>
+				</ul>
+				<input type='submit' value='Bijnamen verwijderen' name='verwijderen'>
+			</form>
 		</c:if>
 		<form method='post' id='toevoegform'>
 			<label>Bijnaam: <span>${fouten.bijnaam}</span> <input

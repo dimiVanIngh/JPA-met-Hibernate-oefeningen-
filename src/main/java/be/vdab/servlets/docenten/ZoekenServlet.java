@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import be.vdab.services.DocentService;
+import be.vdab.util.Validator;
 
 @WebServlet("/docenten/zoeken.htm")
 public class ZoekenServlet extends HttpServlet {
@@ -33,16 +34,42 @@ public class ZoekenServlet extends HttpServlet {
 		request.getRequestDispatcher(VIEW).forward(request, response);
 	}
 
+	//TODO If if else Error ipv if else?
+	//TODO input sanitizen of c:out op pages
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		long id = Long.parseLong(request.getParameter("id"));
+		if (request.getParameter("verwijderen") == null) {
+			bijnamenToevoegen(request, response, id);
+		} else {
+			bijnamenVerwijderen(request, response, id);
+		}
+	}
+
+	private void bijnamenVerwijderen(HttpServletRequest request, HttpServletResponse response, long id)
+			throws IOException {
+		String[] bijnamen = request.getParameterValues("bijnaam");
+		if (bijnamen != null) {
+			docentService.bijnamenVerwijderen(id, bijnamen);
+		}
+		response.sendRedirect(response.encodeRedirectURL(String.format(REDIRECT_URL, request.getContextPath(), id)));
+	}
+
+	private void bijnamenToevoegen(HttpServletRequest request, HttpServletResponse response, long id)
+			throws IOException, ServletException {
 		String bijnaam = request.getParameter("bijnaam");
 		if (bijnaam == null || bijnaam.isEmpty()) {
 			request.setAttribute("fouten", Collections.singletonMap("bijnaam", "verplicht"));
 			request.setAttribute("docent", docentService.read(id));
 			request.getRequestDispatcher(VIEW).forward(request, response);
-		} else {
+		} 
+		if(!Validator.isAlphaNumeric(bijnaam)){
+			request.setAttribute("fouten", Collections.singletonMap("bijnaam", "bijnaam bevat niet toegelaten tekens."));
+			request.setAttribute("docent", docentService.read(id));
+			request.getRequestDispatcher(VIEW).forward(request, response);
+		}
+		else {
 			docentService.bijnaamToevoegen(id, bijnaam);
 			response.sendRedirect(
 					response.encodeRedirectURL(String.format(REDIRECT_URL, request.getContextPath(), id)));
