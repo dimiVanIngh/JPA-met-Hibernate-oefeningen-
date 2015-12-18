@@ -26,4 +26,19 @@
     		order by c.naam 
   		</query>
 	</named-query>
+	<named-query name='Campus.findByGemeente'>
+		<query>
+    		select c 
+    		from Campus c 
+    		where c.adres.gemeente = :gemeente 
+    		order by c.naam
+  		</query>
+	</named-query>
+	<named-query name='Campus.findAll'>
+		<query>
+    		select c 
+    		from Campus c 
+    		order by c.naam
+  		</query>
+	</named-query>
 </entity-mappings>

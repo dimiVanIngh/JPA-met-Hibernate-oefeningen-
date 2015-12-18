@@ -12,6 +12,9 @@ local.properties
 .loadpath
 /build/
 
+# Maven
+target/
+
 # Eclipse Core
 .project
 
@@ -41,3 +44,4 @@ local.properties
 
 # STS (Spring Tool Suite)
 .springBeans
+/target/
