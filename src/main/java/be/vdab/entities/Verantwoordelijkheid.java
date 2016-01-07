@@ -19,8 +19,16 @@ public class Verantwoordelijkheid implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id; // je maakt zelf een getter
-	private String naam; // je maakt zelf een getter
+	private long id;
+	private String naam;
+
+	public long getId() {
+		return id;
+	}
+
+	public String getNaam() {
+		return naam;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -36,7 +44,10 @@ public class Verantwoordelijkheid implements Serializable {
 	}
 
 	@ManyToMany
-	@JoinTable(name = "docentenverantwoordelijkheden", joinColumns = @JoinColumn(name = "verantwoordelijkheidid") , inverseJoinColumns = @JoinColumn(name = "docentid") )
+	@JoinTable(
+			name = "docentenverantwoordelijkheden", 
+			joinColumns = @JoinColumn(name = "verantwoordelijkheidid") , 
+			inverseJoinColumns = @JoinColumn(name = "docentid") )
 	private Set<Docent> docenten;
 
 	public void addDocent(Docent docent) {

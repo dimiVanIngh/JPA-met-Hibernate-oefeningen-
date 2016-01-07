@@ -24,6 +24,7 @@
 			wedde: &euro;
 			<fmt:formatNumber value='${docent.wedde}' />
 		</p>
+		
 		<c:if test='${not empty docent.bijnamen}'>
 			<h2>Bijnamen</h2>
 			<form method='post'>
@@ -42,6 +43,14 @@
 				type='submit' value='Toevoegen' id='toevoegknop'>
 		</form>
 
+		<c:if test='${not empty docent.verantwoordelijkheden}'>
+		  <h2>Verantwoordelijkheden</h2>
+		  <ul>
+		  	<c:forEach items='${docent.verantwoordelijkheden}' var='verantwoordelijkheid'>
+		    	<li>${verantwoordelijkheid.naam}</li>
+		  	</c:forEach>
+		  </ul>
+		</c:if>
 		<h2>Acties</h2>
 
 		<c:url value='/docenten/verwijderen.htm' var='verwijderURL'>

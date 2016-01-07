@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -18,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -52,6 +54,9 @@ public class Docent implements Serializable {
 	@JoinColumn(name = "campusid")
 	private Campus campus;
 
+	@ManyToMany(mappedBy = "docenten")
+	private Set<Verantwoordelijkheid> verantwoordelijkheden;
+
 	// #constructors
 	public Docent(String voornaam, String familienaam, BigDecimal wedde, Geslacht geslacht, long rijksRegisterNr) {
 		setVoornaam(voornaam);
@@ -60,6 +65,7 @@ public class Docent implements Serializable {
 		setGeslacht(geslacht);
 		setRijksRegisterNr(rijksRegisterNr);
 		bijnamen = new HashSet<>();
+		verantwoordelijkheden = new LinkedHashSet<>();
 	}
 
 	protected Docent() {
@@ -123,6 +129,10 @@ public class Docent implements Serializable {
 		return campus;
 	}
 
+	public Set<Verantwoordelijkheid> getVerantwoordelijkheden() {
+		return Collections.unmodifiableSet(verantwoordelijkheden);
+	}
+
 	// #setters
 	public void setId(long id) {
 		this.id = id;
@@ -172,13 +182,28 @@ public class Docent implements Serializable {
 		this.rijksRegisterNr = rijksRegisterNr;
 	}
 
+	// #add methods
 	public void addBijnaam(String bijnaam) {
 		bijnamen.add(bijnaam);
+	}
+
+	public void addVerantwoordelijkheid(Verantwoordelijkheid verantwoordelijkheid) {
+		verantwoordelijkheden.add(verantwoordelijkheid);
+		if (!verantwoordelijkheid.getDocenten().contains(this)) {
+			verantwoordelijkheid.addDocent(this);
+		}
 	}
 
 	// #remove methods
 	public void removeBijnaam(String bijnaam) {
 		bijnamen.remove(bijnaam);
+	}
+
+	public void removeVerantwoordelijkheid(Verantwoordelijkheid verantwoordelijkheid) {
+		verantwoordelijkheden.remove(verantwoordelijkheid);
+		if (verantwoordelijkheid.getDocenten().contains(this)) {
+			verantwoordelijkheid.removeDocent(this);
+		}
 	}
 
 	// #leftover methods
