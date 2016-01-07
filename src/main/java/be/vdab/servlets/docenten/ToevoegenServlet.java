@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import be.vdab.entities.Docent;
 import be.vdab.enums.Geslacht;
+import be.vdab.exceptions.DocentBestaatAlException;
 import be.vdab.services.CampusService;
 import be.vdab.services.DocentService;
 
@@ -23,6 +24,7 @@ public class ToevoegenServlet extends HttpServlet {
 	private static final String REDIRECT_URL = "%s/docenten/zoeken.htm?id=%d";
 	private final transient DocentService docentService = new DocentService();
 	private final transient CampusService campusService = new CampusService();
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -71,10 +73,13 @@ public class ToevoegenServlet extends HttpServlet {
 		if (fouten.isEmpty()) {
 			Docent docent = new Docent(voornaam, familienaam, wedde, Geslacht.valueOf(geslacht), rijksRegisterNr);
 			docent.setCampus(campusService.read(Long.parseLong(campusId)));
-			docentService.create(docent);
-			response.sendRedirect(
-					response.encodeRedirectURL(String.format(REDIRECT_URL, request.getContextPath(), docent.getId())));
-		} else {
+			  try {				  	
+				    docentService.create(docent);
+				    response.sendRedirect(response.encodeRedirectURL(String.format(REDIRECT_URL, request.getContextPath(), docent.getId())));
+				  } catch (DocentBestaatAlException ex) {
+				    fouten.put("rijksregisternr", "bestaat al");
+				  }
+		} if(!fouten.isEmpty()) {
 			request.setAttribute("fouten", fouten);
 			request.setAttribute("campussen", campusService.findAll());
 			request.getRequestDispatcher(VIEW).forward(request, response);

@@ -3,6 +3,8 @@ package be.vdab.dao;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import be.vdab.entities.Docent;
 import be.vdab.valueobjects.AantalDocentenPerWedde;
 import be.vdab.valueobjects.VoornaamEnId;
@@ -41,6 +43,16 @@ public class DocentDAO extends AbstractDAO {
 				.getResultList();
 	}
 
+	
+	public Docent findByRijksRegisterNr(long rijksRegisterNr) {
+		try {
+		    return getEntityManager().createNamedQuery("Docent.findByRijksRegisterNr", Docent.class)
+		     .setParameter("rijksRegisterNr", rijksRegisterNr)
+		     .getSingleResult();
+		  } catch (NoResultException ex) {
+		    return null;
+		  }
+		}
 	// 1 kolom lezen = String/kolomtype als return waarde
 	/*
 	 * public List<String> findVoornamen() { return getEntityManager()
@@ -68,5 +80,5 @@ public class DocentDAO extends AbstractDAO {
 		.setParameter("factor", factor)
 		.executeUpdate();
 	}
-
+	
 }
