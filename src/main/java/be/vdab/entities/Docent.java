@@ -13,10 +13,12 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import be.vdab.enums.Geslacht;
@@ -45,6 +47,10 @@ public class Docent implements Serializable {
 	@CollectionTable(name = "docentenbijnamen", joinColumns = @JoinColumn(name = "docentid") )
 	@Column(name = "Bijnaam")
 	private Set<String> bijnamen;
+
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "campusid")
+	private Campus campus;
 
 	// #constructors
 	public Docent(String voornaam, String familienaam, BigDecimal wedde, Geslacht geslacht, long rijksRegisterNr) {
@@ -108,14 +114,30 @@ public class Docent implements Serializable {
 	public String getNaam() {
 		return voornaam + ' ' + familienaam;
 	}
-	
-	public Set<String> getBijnamen(){
+
+	public Set<String> getBijnamen() {
 		return Collections.unmodifiableSet(bijnamen);
+	}
+
+	public Campus getCampus() {
+		return campus;
 	}
 
 	// #setters
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public void setCampus(Campus campus) {
+		// als de andere kant nog niet bijgewerkt is
+		if (this.campus != null && this.campus.getDocenten().contains(this)) {
+			this.campus.removeDocent(this);
+		}
+		this.campus = campus;
+		// als de andere kant nog niet bijgewerkt is
+		if (campus != null && !campus.getDocenten().contains(this)) {
+			campus.addDocent(this);
+		}
 	}
 
 	public void setVoornaam(String voornaam) {
@@ -149,20 +171,33 @@ public class Docent implements Serializable {
 		}
 		this.rijksRegisterNr = rijksRegisterNr;
 	}
-	
-	public void addBijnaam(String bijnaam){
+
+	public void addBijnaam(String bijnaam) {
 		bijnamen.add(bijnaam);
 	}
-	
+
 	// #remove methods
-	public void removeBijnaam(String bijnaam){
+	public void removeBijnaam(String bijnaam) {
 		bijnamen.remove(bijnaam);
 	}
-	
+
 	// #leftover methods
 	public void opslag(BigDecimal percentage) {
 		BigDecimal factor = BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100)));
 		wedde = wedde.multiply(factor).setScale(2, RoundingMode.HALF_UP);
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Docent)) {
+			return false;
+		}
+		return ((Docent) obj).rijksRegisterNr == rijksRegisterNr;
+	}
+
+	@Override
+	public int hashCode() {
+		return Long.valueOf(rijksRegisterNr).hashCode();
+	}
+
 }
