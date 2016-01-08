@@ -3,8 +3,10 @@ package be.vdab.dao;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 
+import be.vdab.entities.Campus;
 import be.vdab.entities.Docent;
 import be.vdab.valueobjects.AantalDocentenPerWedde;
 import be.vdab.valueobjects.VoornaamEnId;
@@ -13,6 +15,10 @@ public class DocentDAO extends AbstractDAO {
 
 	public Docent read(long id) {
 		return getEntityManager().find(Docent.class, id);
+	}
+
+	public Docent readWithLock(long id) {
+		return getEntityManager().find(Docent.class, id, LockModeType.PESSIMISTIC_WRITE);
 	}
 
 	public void create(Docent docent) {
@@ -37,22 +43,20 @@ public class DocentDAO extends AbstractDAO {
 
 	// Named parameters
 	public List<Docent> findByWeddeBetween(BigDecimal van, BigDecimal tot, int vanafRij, int aantalRijen) {
-		return getEntityManager().createNamedQuery("Docent.findByWeddeBetween", Docent.class)
-				.setParameter("van", van)
+		return getEntityManager().createNamedQuery("Docent.findByWeddeBetween", Docent.class).setParameter("van", van)
 				.setParameter("tot", tot)
+				.setHint("javax.persistence.loadgraph", getEntityManager().createEntityGraph(Docent.MET_CAMPUS))
 				.getResultList();
 	}
 
-	
 	public Docent findByRijksRegisterNr(long rijksRegisterNr) {
 		try {
-		    return getEntityManager().createNamedQuery("Docent.findByRijksRegisterNr", Docent.class)
-		     .setParameter("rijksRegisterNr", rijksRegisterNr)
-		     .getSingleResult();
-		  } catch (NoResultException ex) {
-		    return null;
-		  }
+			return getEntityManager().createNamedQuery("Docent.findByRijksRegisterNr", Docent.class)
+					.setParameter("rijksRegisterNr", rijksRegisterNr).getSingleResult();
+		} catch (NoResultException ex) {
+			return null;
 		}
+	}
 	// 1 kolom lezen = String/kolomtype als return waarde
 	/*
 	 * public List<String> findVoornamen() { return getEntityManager()
@@ -62,7 +66,8 @@ public class DocentDAO extends AbstractDAO {
 
 	public List<VoornaamEnId> findVoornamen() {
 		return getEntityManager()
-				.createQuery("select new be.vdab.valueobjects.VoornaamEnId(d.id, d.voornaam) from Docent d", VoornaamEnId.class)
+				.createQuery("select new be.vdab.valueobjects.VoornaamEnId(d.id, d.voornaam) from Docent d",
+						VoornaamEnId.class)
 				.getResultList();
 	}
 
@@ -71,14 +76,18 @@ public class DocentDAO extends AbstractDAO {
 	}
 
 	public List<AantalDocentenPerWedde> findAantalDocentenPerWedde() {
-		return getEntityManager().createQuery("select new be.vdab.valueobjects.AantalDocentenPerWedde(d.wedde,count(d)) from Docent d group by d.wedde", AantalDocentenPerWedde.class)
-				.getResultList();
+		return getEntityManager().createQuery(
+				"select new be.vdab.valueobjects.AantalDocentenPerWedde(d.wedde,count(d)) from Docent d group by d.wedde",
+				AantalDocentenPerWedde.class).getResultList();
 	}
 
 	public void algemeneOpslag(BigDecimal factor) {
-		getEntityManager().createNamedQuery("Docent.algemeneOpslag")
-		.setParameter("factor", factor)
-		.executeUpdate();
+		getEntityManager().createNamedQuery("Docent.algemeneOpslag").setParameter("factor", factor).executeUpdate();
 	}
-	
+
+	public List<Docent> findBestBetaaldeVanEenCampus(Campus campus) {
+		return getEntityManager().createNamedQuery("Docent.findBestBetaaldeVanEenCampus", Docent.class)
+				.setParameter("campus", campus).getResultList();
+	}
+
 }

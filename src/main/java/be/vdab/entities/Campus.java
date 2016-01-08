@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
@@ -43,6 +44,10 @@ public class Campus implements Serializable {
 	@OneToMany(mappedBy = "campus")
 	@OrderBy("voornaam, familienaam")
 	private Set<Docent> docenten;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "managerid")
+	private Manager manager;
 
 	// CONSTRUCTORS
 	public Campus(String naam, Adres adres) {
@@ -103,6 +108,10 @@ public class Campus implements Serializable {
 
 	public Adres getAdres() {
 		return adres;
+	}
+
+	public Manager getManager() {
+		return manager;
 	}
 
 	public void setAdres(Adres adres) {

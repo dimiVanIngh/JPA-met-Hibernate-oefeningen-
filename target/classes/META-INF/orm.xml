@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
   http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
 	version="2.1">
-	<!--  Queries ivm Docent -->
+	<!-- Queries ivm Docent -->
 	<named-query name='Docent.findByWeddeBetween'>
 		<query>
 			select d 
@@ -26,8 +26,15 @@
     		where d.rijksRegisterNr = :rijksRegisterNr
   		</query>
 	</named-query>
+	<named-query name='Docent.findBestBetaaldeVanEenCampus'>
+		<query>
+    		select d 
+    		from Docent d 
+    		where d.campus = :campus and d.wedde = (select max(dd.wedde) from Docent dd where dd.campus = :campus)
+		</query>
+	</named-query>
 	
-	<!--  Queries ivm Cursus -->
+	<!-- Queries ivm Cursus -->
 	<named-query name='Cursus.findByNaamContains'>
 		<query>
     		select c 
